@@ -5,7 +5,7 @@ try:
         host='localhost',
         database='ProjectUFFT',
         user='root',
-        password='root',
+        password='roshni04',
         use_pure=True
     )
     if connection.is_connected():

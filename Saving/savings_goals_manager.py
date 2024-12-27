@@ -12,7 +12,7 @@ class SavingsGoalsManager:
                 host='localhost',
                 database='ProjectUFFT',
                 user='root',
-                password='root',
+                password='roshni04',
                 use_pure=True  # This helps with Decimal handling
             )
             self.cursor = self.connection.cursor(dictionary=True)

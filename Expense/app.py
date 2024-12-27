@@ -32,8 +32,8 @@ def upload_receipt():
 db_config={
     'host':'localhost',
     'user':'root',
-    'password':'$9Gamb@098',
-    'database':'project_ufft',
+    'password':'roshni04',
+    'database':'ProjectUFFT',
     'port':3306
 }
 

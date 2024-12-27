@@ -2,6 +2,9 @@ from flask import Flask, request, render_template, redirect, url_for, session,fl
 from Expense.app import expense_bp
 from user_reg.main import user_reg_bp
 from Saving.app import saving_bp
+from data_visualization.app import data_visualization_bp
+
+
 
 def create_app():
     app = Flask(__name__)
@@ -19,6 +22,7 @@ def create_app():
     app.register_blueprint(expense_bp, url_prefix='/expense')
     app.register_blueprint(user_reg_bp, url_prefix='/user_reg')
     app.register_blueprint(saving_bp, url_prefix='/saving')
+    app.register_blueprint(data_visualization_bp, url_prefix='/data_visualization')
 
 
     return app

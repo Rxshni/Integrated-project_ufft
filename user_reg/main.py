@@ -12,7 +12,7 @@ import random
 app = Flask(__name__)
 app.secret_key = 'ProjectUFFT'
 
-con = mysql.connector.connect(host='localhost', user='root', password='$9Gamb@098', database='project_ufft')
+con = mysql.connector.connect(host='localhost', user='root', password='roshni04', database='ProjectUFFT')
 cur = con.cursor(buffered=True)
 
 user_reg_bp = Blueprint('user_reg', __name__, template_folder='templates', static_folder='static')

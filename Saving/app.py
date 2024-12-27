@@ -43,7 +43,7 @@ def create_goal():
         except ValueError as e:
             flash(f"Invalid input: {str(e)}", "error")
             
-        return redirect(url_for('create_goal'))
+        return redirect(url_for('Saving.create_goal'))
         
     return render_template('create_goal.html')
 
@@ -163,7 +163,7 @@ def update_goal():
         except ValueError as e:
             flash(f'Invalid input: {str(e)}', 'error')
 
-        return redirect(url_for('update_goal'))
+        return redirect(url_for('Saving.update_goal'))
 
     return render_template('update_goal.html', 
                          pre_fill_user_id=pre_fill_user_id,
