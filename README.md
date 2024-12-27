@@ -1,7 +1,9 @@
-Integrated codes 
+<h1>Integrated codes</h1>
 
-Currently has integration of modules :
-User acct mgmt
-Saving
-Expenses
-Data vis.
+<h3>Currently has integration of modules :</h3>
+<ul>
+<li>User acct mgmt</li>
+<li>Saving</li>
+<li>Expenses</li>
+<li>Data vis.</li>
+</ul>
