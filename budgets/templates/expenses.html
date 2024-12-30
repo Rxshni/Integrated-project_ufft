@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Expenses</title>
+    <link rel="stylesheet" href="static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <img src="static/logo.png" alt="Logo" class="logo">
+            <h1>Add Expenses</h1>
+        </header>
+
+        <form method="POST" enctype="multipart/form-data">
+            <!-- Select Budget -->
+            <label for="budget_id">Select Budget:</label>
+            <select name="budget_id" id="budget_id" required>
+                <option value="">Select a budget</option>
+                {% for budget in budgets %}
+                    <option value="{{ budget.budget_id }}">{{ budget.category }}</option>
+                {% endfor %}
+            </select>
+
+            <!-- Expense Amount -->
+            <label for="amount">Amount:</label>
+            <input type="number" name="amount" id="amount" placeholder="Enter expense amount" required>
+
+            <!-- Expense Date -->
+            <label for="date">Date:</label>
+            <input type="date" name="date" id="date" required>
+
+            <!-- Description -->
+            <label for="description">Description:</label>
+            <input type="text" name="description" id="description" placeholder="Enter description (optional)">
+
+            <!-- Receipt Upload -->
+            <label for="receipt">Receipt:</label>
+            <input type="file" name="receipt" id="receipt" class="file-input">
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn">Add Expense</button>
+        </form>
+    </div>
+</body>
+</html>

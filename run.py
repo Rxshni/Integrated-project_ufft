@@ -3,6 +3,7 @@ from Expense.app import expense_bp
 from user_reg.main import user_reg_bp
 from Saving.app import saving_bp
 from data_visualization.app import data_visualization_bp
+from budgets.app import budget_bp 
 
 
 
@@ -23,6 +24,7 @@ def create_app():
     app.register_blueprint(user_reg_bp, url_prefix='/user_reg')
     app.register_blueprint(saving_bp, url_prefix='/saving')
     app.register_blueprint(data_visualization_bp, url_prefix='/data_visualization')
+    app.register_blueprint(budget_bp, url_prefix='/budget') 
 
 
     return app

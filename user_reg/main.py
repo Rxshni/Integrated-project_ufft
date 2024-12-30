@@ -97,7 +97,7 @@ def validate_account_number(account_number):
 
 @user_reg_bp.route("/")
 def index():
-    return render_template("home.html")
+    return render_template("home_1.html")
 
 @user_reg_bp.route("/signup",methods=['GET','POST'])
 def signup():

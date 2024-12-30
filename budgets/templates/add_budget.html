@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Budget</title>
+    <link rel="stylesheet" href="static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Add Budget</h1>
+        </header>
+        <form method="POST" action="/add_budget">
+            <!-- Category Dropdown -->
+            <label for="category_id">Category:</label>
+            <select name="category_id" id="category" required> <!-- Changed name to 'category_id' -->
+                <option value="">Select a category</option>
+                {% for cat in categories %}
+                    <option value="{{ cat.category_id }}">{{ cat.category_name }}</option> <!-- Changed value to category_id -->
+                {% endfor %}
+            </select>
+
+            <!-- Budget Amount -->
+            <label for="amount">Budget Amount:</label>
+            <input type="number" name="amount" id="amount" placeholder="Enter budget amount" required>
+
+            <!-- Threshold Amount -->
+            <label for="threshold_value">Threshold Amount:</label>
+            <input type="number" name="threshold_value" id="threshold_value" placeholder="Enter threshold amount" required>
+
+            <!-- Start Date -->
+            <label for="start_date">Start Date:</label>
+            <input type="date" name="start_date" id="start_date" required>
+
+            <!-- End Date -->
+            <label for="end_date">End Date:</label>
+            <input type="date" name="end_date" id="end_date">
+
+            <!-- Recurring Checkbox -->
+            <div class="checkbox-container">
+                <input type="checkbox" name="recurring" id="recurring" value="1">
+                <label for="recurring" class="checkbox-label">Recurring</label>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn">Add Budget</button>
+        </form>
+    </div>
+</body>
+</html>

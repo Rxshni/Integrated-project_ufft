@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Edit Budget</title>
+    <link rel="stylesheet" href="static/styles.css">
+</head>
+<body class="edit-budget-page">
+    <div class="form-container">
+        <header>
+            <img src="static/logo.png" alt="Logo" class="logo">
+            <h1>Edit Budget</h1>
+        </header>
+
+        <form method="POST">
+            <label>Category:</label>
+            <input type="text" name="category" value="{{ budget.category }}" required><br>
+
+            <label>Budget Amount:</label>
+            <input type="number" name="budget_amount" value="{{ budget.budget_amount }}" required><br>
+
+            <button type="submit" class="btn submit-btn">Update Budget</button>
+        </form>
+    </div>
+</body>
+</html>
