@@ -6,4 +6,5 @@
 <li>Saving</li>
 <li>Expenses</li>
 <li>Data vis.</li>
+<li>Budget</li>
 </ul>
