@@ -7,6 +7,10 @@ from email.message import EmailMessage
 import random
 import string
 import random
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from datetime import datetime, timedelta
+
 
 
 app = Flask(__name__)
@@ -25,6 +29,19 @@ def is_username_taken(username):
     cur.execute(query, (username,))
     count = cur.fetchone()[0]
     return count > 0
+
+def check_account(login_name,login_pass):
+    cur.execute("select user_name from users where user_name = %s",(login_name,))
+    row=cur.fetchone()
+    if row!=None:
+        cur.execute("select password from users where user_name = %s", (login_name,))
+        row=cur.fetchone()
+        if row==(login_pass,):
+            return True,"Successfull login"
+        else:
+            return False,"Invalid password"
+    else:
+        return False,"Invalid username"
 
 def is_valid_password(password):
     special_characters = "!@#$%^&*(),.?\":{}|<>"
@@ -91,8 +108,45 @@ def validate_account_number(account_number):
         return True
     else:
         return False
+    
+def reset_pass(email):
+    pass_otp=""
+    for i in range(4):
+        pass_otp+=str(random.randint(0,9))
+    server=smtplib.SMTP('smtp.gmail.com',587)
+    server.starttls()
+    server.login('dum31555@gmail.com',"dweg wzyz mbfa wvkv")
+    to_mail=email
+    from_mail="dum31555@gmail.com"
+    msg=EmailMessage()
+    msg['Subject']="Reset password"
+    msg['From']=from_mail
+    msg['To']=to_mail
+    msg.set_content("Your OTP is to reset password is : " + pass_otp)
+    server.send_message(msg)
+    return pass_otp
 
 
+
+def generate_family_code(cur):
+    while True:
+        
+        family_code = random.randint(100000, 999999)
+        
+        cur.execute("SELECT COUNT(*) FROM users WHERE family_id = %s", (family_code,))
+        if cur.fetchone()[0] == 0:  
+            return family_code
+
+def member_code(mem_code):
+    cur.execute("SELECT COUNT(*) FROM users WHERE family_id = %s", (mem_code,))
+    members_count = cur.fetchone()[0]
+        
+    if members_count >= 8:
+        return False, 'Family code already has 8 members. You cannot join this family.'
+    elif members_count > 0:
+        return True,'Sucess'
+    else:
+        return False,'Family code not found. Please try again'
 
 
 @user_reg_bp.route("/")
@@ -107,6 +161,7 @@ def signup():
          name = request.form['name']
          user_name = request.form['username']
          password = request.form['password']
+         dob= request.form['DOB']
          phone_no=request.form['phone']
          email = request.form['email']
 
@@ -114,6 +169,7 @@ def signup():
          session['name'] = name
          session['user_name'] = user_name
          session['password'] = password
+         session['dob'] = dob
          session['phone_no']=phone_no
          session['email'] = email
 
@@ -136,6 +192,62 @@ def signup():
          
 
     return redirect(url_for('user_reg.otp'))
+
+@user_reg_bp.route('/signin',methods=['GET','POST'])
+def signin():
+    if request.method=='GET':
+        return render_template('signin.html')
+    else:
+         login_name = request.form['login_name']
+         login_pass = request.form['login_pass']
+         
+         val, mess =check_account(login_name,login_pass)
+         if not val:
+            return render_template('signin.html', error=f"{mess}")
+         
+    return redirect(url_for('user_reg.welcome'))
+
+@user_reg_bp.route('/get_mail',methods=['GET','POST'])
+def get_mail():
+    if request.method=='GET':
+        return render_template('email.html')
+    else:
+        pass_email=request.form['email_otp']
+        pass_user=request.form['user']
+
+        pass_otp=reset_pass(pass_email)
+        session['pass_otp']=pass_otp
+        session['pass_email']=pass_email
+        session['pass_user']=pass_user
+    return redirect(url_for('user_reg.forgot_password'))
+
+@user_reg_bp.route('/forgot_password',methods=['GET','POST'])
+def forgot_password():
+
+    if request.method=='GET':
+        return render_template('pass_otp.html')
+    else:
+        user_otp=request.form['passOTP']
+        mail_pass=session.get('pass_otp')
+
+        if user_otp==mail_pass:
+            if user_otp==mail_pass:
+                return redirect(url_for('user_reg.reset'))
+        else:
+            return render_template('pass_otp.html',error="Incorrect OTP")
+            
+
+@user_reg_bp.route('/reset',methods=['GET','POST'])
+def reset():
+    if request.method=='GET':
+        return render_template('reset.html')
+    else:
+        new_pass=request.form['new_pass']
+        new_user=session.get('pass_user')
+        cur.execute("UPDATE users SET password = %s WHERE user_name = %s", 
+                        (new_pass, new_user))
+        con.commit()
+    return redirect(url_for('user_reg.signin'))
 
 
 
@@ -170,12 +282,123 @@ def bankAcc():
         name=session.get('name')
         user_name=session.get('user_name')
         password=session.get('password')
+        dob=session.get('dob')
         phone_no=session.get('phone_no')
         email=session.get('email')
-        cur.execute("insert into users (name,user_name,password,phone_no,email,bank_acc_no,role) values (%s,%s,%s,%s,%s,%s,%s)",(name,user_name,password,phone_no,email,bank_acc_no,role))
+        cur.execute("insert into users (name,user_name,password,phone_no,email,bank_acc_no,role,dob) values (%s,%s,%s,%s,%s,%s,%s,%s)",(name,user_name,password,phone_no,email,bank_acc_no,role,dob))
         con.commit()
 
+        if role=='HOF':
+            hof_code=generate_family_code(cur)
+            session['hof_code']=hof_code
+            cur.execute("update users set family_id=%s where user_name=%s",(hof_code,user_name))
+            con.commit()
+            return redirect(url_for('user_reg.hof'))
+        elif role=='Member':
+            return redirect(url_for('user_reg.member'))
+        else:
+            return redirect(url_for('user_reg.welcome'))
+
+
+
+@user_reg_bp.route("/hof",methods=['GET','POST'])
+def hof():
+    if request.method=='GET':
+        hof_code=session.get('hof_code')
+        message=hof_code
+        return render_template("hof.html",message=message)
     return redirect(url_for('user_reg.welcome'))
+    
+@user_reg_bp.route("/member",methods=['GET','POST'])
+def member():
+    if request.method=='GET':
+        return render_template("member.html")
+    elif request.method=='POST':
+        mem_code=request.form['code']
+        user_name=session.get('user_name')
+        is_valid, message = member_code(mem_code)
+        if not is_valid:
+            return render_template('member.html', error=f"{message}")
+        else:
+            cur.execute("update users set family_id=%s where user_name=%s",(mem_code,user_name))
+            con.commit()
+    return redirect(url_for('user_reg.welcome'))
+
+
+
+
+@user_reg_bp.route("/del_acc",methods=['GET','POST'])
+def del_acc():
+    if request.method=='GET':
+        return render_template("delAcc.html")
+    else:
+        del_user=request.form['del_user']
+        del_pass=request.form['del_pass']
+        session['user']=del_user
+        cur.execute("select role from users where user_name=%s",(del_user,))
+        
+        row=cur.fetchone()
+
+        if row==('HOF',) or row==('hof',):
+            cur.execute("select family_id from users where user_name=%s",(del_user,))
+            fam_row=cur.fetchone()
+            session['family_id'] = fam_row[0]
+            return redirect(url_for('user_reg.options'))
+        elif row==('Member',) or row==('None',) :
+            cur.execute("delete from users where user_name=%s", (del_user,))
+            con.commit()
+            return redirect(url_for('user_reg.index'))
+        
+
+    
+@user_reg_bp.route("/options",methods=['GET','POST'])
+def options():
+    if request.method=='GET':
+        return render_template("options.html")
+    else:
+        opt=request.form['1']
+        if opt=='assign_hof':
+            return redirect(url_for('user_reg.new_hof'))
+        elif opt=='full' :
+            user=session.get('user')
+            fam_id=session.get('family_id')
+            cur.execute("UPDATE users SET family_id = NULL WHERE family_id = %s", (fam_id,))
+
+
+            cur.execute("DELETE FROM users WHERE user_name = %s", (user,))
+            con.commit()
+            return redirect(url_for('user_reg.index'))
+
+        elif opt=='fam' :
+            fam_id=session.get('family_id')
+            cur.execute("UPDATE users SET family_id = NULL WHERE family_id = %s", (fam_id,))
+            con.commit()
+            return redirect(url_for('user_reg.welcome'))
+
+        
+    
+
+@user_reg_bp.route("/new_hof",methods=['GET','POST'])
+def new_hof():
+    if request.method=='GET':
+        fam_id=session.get('family_id')
+        cur.execute("SELECT user_name FROM users WHERE family_id = %s", (fam_id,))
+        rows = cur.fetchall()
+        
+        names = [row[0] for row in rows]
+        return render_template("new_hof.html",names=names)
+    else :
+        new_hof=request.form['new_hof']
+        user=session.get('user')
+        cur.execute("UPDATE users SET role = 'hof' WHERE user_name = %s", (new_hof,))
+        cur.execute("delete from users where user_name=%s", (user,))
+        con.commit()
+        return redirect(url_for('user_reg.index'))
+    
+
+
+       
+
 
 @user_reg_bp.route("/welcome")
 def welcome():
